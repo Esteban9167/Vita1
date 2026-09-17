@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function callerDoc() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid));
+    }
+
+    function isNurse() {
+      return signedIn()
+        && callerDoc().exists
+        && callerDoc().data.rol == "enfermero";
+    }
+
+    function nurseLinkedTo(patientId) {
+      let patientDoc = get(/databases/$(database)/documents/usuarios/$(patientId));
+      return isNurse()
+        && patientDoc.exists
+        && patientDoc.data.codigoAcceso is string
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)/pacientes/$(patientDoc.data.codigoAcceso));
+    }
+
+    match /codigos/{code} {
+      allow get: if signedIn() && (
+        resource == null
+        || isNurse()
+        || resource.data.patientUid == request.auth.uid
+      );
+      allow list: if false;
+      allow create: if signedIn()
+        && request.resource.data.patientUid == request.auth.uid;
+      allow update, delete: if signedIn()
+        && resource.data.patientUid == request.auth.uid;
+    }
+
+    match /usuarios/{userId} {
+      allow read: if isOwner(userId) || nurseLinkedTo(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId)
+        || (nurseLinkedTo(userId)
+            && resource.data.rol == "paciente"
+            && request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(["vita", "resumen", "actualizadoEn"]));
+      allow delete: if false;
+    }
+
+    match /usuarios/{userId}/pacientes/{code} {
+      allow read, delete: if isOwner(userId);
+      allow create, update: if isOwner(userId)
+        && isNurse()
+        && exists(/databases/$(database)/documents/codigos/$(code))
+        && request.resource.data.patientUid == get(/databases/$(database)/documents/codigos/$(code)).data.patientUid;
+    }
+
+    match /usuarios/{userId}/responsables/{nurseId} {
+      allow read: if isOwner(userId) || request.auth.uid == nurseId;
+      allow create, update: if request.auth.uid == nurseId && isNurse();
+    }
+  }
+}

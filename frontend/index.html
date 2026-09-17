@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#134542">
+  <title>Vita — compañera de cuidado</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div id="auth-screen">
+    <div class="auth-visual">
+      <div class="auth-brand">
+        <div class="mark">V</div>
+        <div class="name">Vita</div>
+      </div>
+      <div class="auth-quote">
+        <div class="headline">Acompañarte, todos los días, con calma.</div>
+        <div class="support">Vita te dice quién eres, dónde estás y quién te habla, y cuida tus medicamentos, citas y contactos de emergencia.</div>
+      </div>
+      <div class="auth-features">
+        <div class="auth-feature"><span class="dot-mark"></span>Te ayuda a ubicarte con suavidad</div>
+        <div class="auth-feature"><span class="dot-mark"></span>Recordatorios de medicamentos</div>
+        <div class="auth-feature"><span class="dot-mark"></span>Historia clínica siempre a mano</div>
+      </div>
+    </div>
+
+    <div class="auth-form-wrap">
+      <div class="auth-card">
+        <div id="loginForm">
+          <h1>Inicia sesión</h1>
+          <div class="lead">Bienvenido de nuevo. Ingresa tus datos para continuar.</div>
+          <div class="auth-error" id="loginError"></div>
+          <div class="auth-field">
+            <label for="loginEmail">Correo electrónico</label>
+            <input type="email" id="loginEmail" placeholder="tucorreo@ejemplo.com" autocomplete="username">
+          </div>
+          <div class="auth-field">
+            <label for="loginPassword">Contraseña</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+          </div>
+          <button class="auth-submit" type="button" id="btn-login" onclick="window.vitaApp&&window.vitaApp.login()">Iniciar sesión</button>
+          <div class="auth-divider"><span>o continúa con</span></div>
+          <div class="social-row">
+            <button class="social-btn google" type="button" data-social="google" onclick="window.vitaApp&&window.vitaApp.social('google')">Google</button>
+            <button class="social-btn apple" type="button" data-social="apple" onclick="window.vitaApp&&window.vitaApp.social('apple')">Apple</button>
+          </div>
+          <div class="auth-switch">¿No tienes cuenta? <button type="button" id="btn-show-register" onclick="window.vitaApp&&window.vitaApp.showRegister()">Crear una cuenta</button></div>
+        </div>
+
+        <div id="registerForm">
+          <h1>Crea tu cuenta</h1>
+          <div class="lead">Cuéntanos quién eres para personalizar Vita.</div>
+          <div class="auth-error" id="registerError"></div>
+          <div class="auth-field">
+            <label for="regNombre">Nombre completo</label>
+            <input type="text" id="regNombre" placeholder="Ej. María López" autocomplete="name">
+          </div>
+          <div class="auth-field">
+            <label for="regEmail">Correo electrónico</label>
+            <input type="email" id="regEmail" placeholder="tucorreo@ejemplo.com" autocomplete="email">
+          </div>
+          <div class="auth-field">
+            <label for="regTelefono">Número de teléfono</label>
+            <input type="tel" id="regTelefono" placeholder="Ej. 300 123 4567" autocomplete="tel">
+          </div>
+          <div class="auth-field">
+            <span class="field-caption">¿Eres paciente o enfermero?</span>
+            <div class="role-picker" id="regRolePicker">
+              <button type="button" class="role-card" data-role="paciente">
+                <strong>Paciente</strong>
+                <span>Registro mi salud y tratamientos</span>
+              </button>
+              <button type="button" class="role-card" data-role="enfermero">
+                <strong>Enfermero</strong>
+                <span>Acompaño a un paciente</span>
+              </button>
+            </div>
+          </div>
+          <div class="auth-field">
+            <label for="regPassword">Contraseña</label>
+            <input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+          </div>
+          <div class="auth-field">
+            <label for="regPassword2">Confirmar contraseña</label>
+            <input type="password" id="regPassword2" placeholder="Repite tu contraseña" autocomplete="new-password">
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="regTerms">
+            <label for="regTerms">Acepto el uso de mis datos para fines de esta app</label>
+          </div>
+          <button class="auth-submit" type="button" id="btn-register" onclick="window.vitaApp&&window.vitaApp.register()">Crear cuenta</button>
+          <div class="auth-divider"><span>o regístrate con</span></div>
+          <div class="social-row">
+            <button class="social-btn google" type="button" data-social="google" onclick="window.vitaApp&&window.vitaApp.social('google')">Google</button>
+            <button class="social-btn apple" type="button" data-social="apple" onclick="window.vitaApp&&window.vitaApp.social('apple')">Apple</button>
+          </div>
+          <div class="auth-switch">¿Ya tienes cuenta? <button type="button" id="btn-show-login">Iniciar sesión</button></div>
+        </div>
+
+        <div id="profileForm">
+          <h1>Completa tu perfil</h1>
+          <div class="lead">Falta un dato básico para activar tu cuenta de Vita.</div>
+          <div class="auth-error" id="profileError"></div>
+          <div class="auth-field">
+            <label for="profileNombre">Nombre completo</label>
+            <input type="text" id="profileNombre" placeholder="Ej. María López">
+          </div>
+          <div class="auth-field">
+            <label for="profileTelefono">Número de teléfono</label>
+            <input type="tel" id="profileTelefono" placeholder="Ej. 300 123 4567">
+          </div>
+          <div class="auth-field">
+            <span class="field-caption">¿Eres paciente o enfermero?</span>
+            <div class="role-picker" id="profileRolePicker">
+              <button type="button" class="role-card" data-role="paciente">
+                <strong>Paciente</strong>
+                <span>Registro mi salud y tratamientos</span>
+              </button>
+              <button type="button" class="role-card" data-role="enfermero">
+                <strong>Enfermero</strong>
+                <span>Acompaño a un paciente</span>
+              </button>
+            </div>
+          </div>
+          <button class="auth-submit" type="button" id="btn-save-profile">Guardar y entrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-container">
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="mark">V</div>
+          <div class="name">Vita<small>salud personal</small></div>
+        </div>
+        <nav class="side-nav" id="side-nav"></nav>
+        <div class="sidebar-footer">
+          <div class="patient-chip">
+            <div class="avatar" id="avatarBadge">M</div>
+            <div>
+              <div class="who" id="sidebarName">María López</div>
+              <div class="role" id="sidebarEmail">Paciente</div>
+            </div>
+          </div>
+          <button class="logout-btn" type="button" id="btn-logout">Cerrar sesión</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="topbar">
+          <div>
+            <div class="eyebrow"><span class="dot"></span><span id="greeting-time">Buenos días</span></div>
+            <h1>Hola, <span id="greeting-name">María</span></h1>
+            <div class="sub" id="today-label"></div>
+          </div>
+          <button class="activate-vita-btn" type="button" data-activate-vita>Activar Vita</button>
+        </div>
+
+        <section class="screen active" id="screen-inicio">
+          <button class="activate-vita-btn activate-vita-hero" type="button" data-activate-vita>Activar Vita</button>
+          <aside class="orient-card" id="homeOrientCard">
+            <h2>Estás a salvo</h2>
+            <dl class="orient-facts">
+              <div>
+                <dt>Tú eres</dt>
+                <dd id="orientName">—</dd>
+              </div>
+              <div>
+                <dt>Estás</dt>
+                <dd id="orientPlace">en un lugar seguro</dd>
+              </div>
+              <div>
+                <dt>Te habla</dt>
+                <dd id="orientVoice">Vita, tu compañera de cuidado</dd>
+              </div>
+            </dl>
+            <button class="btn btn-primary btn-block" type="button" id="btn-orientar">Ayúdame a ubicarme</button>
+          </aside>
+          <div class="home-grid">
+            <div>
+              <div class="event-hero" id="heroEvent">
+                <div class="tag">Próximo evento</div>
+                <div class="title" id="heroTitle">Sin eventos programados</div>
+                <div class="when" id="heroWhen">Agrega uno desde el calendario</div>
+              </div>
+              <div class="section-label">Accesos rápidos</div>
+              <div class="quick-grid" id="quick-grid"></div>
+            </div>
+            <div class="card">
+              <div class="row-between">
+                <span class="row-title">Medicamentos de hoy</span>
+                <span class="time-pill" id="medProgress">0/0</span>
+              </div>
+              <div id="homeMedList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-historia">
+          <h2 class="screen-title">Historia clínica</h2>
+          <div class="card card-narrow">
+            <p class="lock-note" id="historiaLockNote" hidden>Tu historia clínica es de solo consulta. Un enfermero debe actualizar alergias, tipo de sangre y el resto del expediente. Vita tampoco puede cambiarla.</p>
+            <div class="form-grid">
+              <div>
+                <label class="field-label" for="hcSangre">Tipo de sangre</label>
+                <input class="field" id="hcSangre" placeholder="Ej. O+">
+              </div>
+              <div>
+                <label class="field-label" for="hcAlergias">Alergias</label>
+                <input class="field" id="hcAlergias" placeholder="Ej. Penicilina, polen">
+              </div>
+              <div class="full">
+                <label class="field-label" for="hcCronicas">Condiciones crónicas</label>
+                <textarea class="field" id="hcCronicas" placeholder="Ej. Hipertensión, diabetes tipo 2"></textarea>
+              </div>
+              <div class="full">
+                <label class="field-label" for="hcCirugias">Cirugías / hospitalizaciones</label>
+                <textarea class="field" id="hcCirugias" placeholder="Ej. Apendicectomía (2015)"></textarea>
+              </div>
+              <div class="full">
+                <label class="field-label" for="hcNotas">Notas para el médico</label>
+                <textarea class="field" id="hcNotas" placeholder="Cualquier información adicional relevante"></textarea>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-save" type="button" id="btn-save-historia">Guardar historia clínica</button>
+          </div>
+          <div class="card card-narrow orient-setup">
+            <h3 class="card-heading">Datos para orientar con calma</h3>
+            <p class="lock-note" id="orientacionLockNote" hidden>Estos datos los completa un enfermero. Sirven para que Vita te recuerde quién eres y dónde estás, sin asustarte.</p>
+            <div class="form-grid">
+              <div class="full">
+                <label class="field-label" for="orLugar">Dónde está habitualmente</label>
+                <input class="field" id="orLugar" placeholder="Ej. en casa, en el barrio El Poblado">
+              </div>
+              <div class="full">
+                <label class="field-label" for="orAcompanante">Con quién está</label>
+                <input class="field" id="orAcompanante" placeholder="Ej. con tu hija Ana">
+              </div>
+              <div class="full">
+                <label class="field-label" for="orPresentacion">Cómo debe presentarse Vita</label>
+                <textarea class="field" id="orPresentacion" placeholder="Ej. Soy Vita, tu compañera de cuidado. Estoy aquí contigo."></textarea>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-save" type="button" id="btn-save-orientacion">Guardar orientación</button>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-contactos">
+          <h2 class="screen-title">Contactos de emergencia</h2>
+          <div class="section-grid">
+            <div class="card list-card" id="contactsCard"></div>
+            <div class="card">
+              <h3 class="card-heading">Nuevo contacto</h3>
+              <div class="field-stack">
+                <div><label class="field-label" for="mcNombre">Nombre</label><input class="field" id="mcNombre" placeholder="Ej. Carlos Pérez"></div>
+                <div><label class="field-label" for="mcRelacion">Relación</label><input class="field" id="mcRelacion" placeholder="Ej. Hijo, esposa, médico..."></div>
+                <div><label class="field-label" for="mcTelefono">Teléfono</label><input class="field" id="mcTelefono" placeholder="Ej. 300 123 4567" type="tel"></div>
+              </div>
+              <button class="btn btn-primary btn-block" type="button" id="btn-add-contact">Guardar contacto</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-medicamentos">
+          <h2 class="screen-title">Medicamentos</h2>
+          <div class="section-grid">
+            <div class="card list-card" id="medsCard"></div>
+            <div class="card">
+              <h3 class="card-heading">Nuevo medicamento</h3>
+              <div class="field-stack">
+                <div><label class="field-label" for="mmNombre">Nombre del medicamento</label><input class="field" id="mmNombre" placeholder="Ej. Losartán"></div>
+                <div><label class="field-label" for="mmDosis">Dosis</label><input class="field" id="mmDosis" placeholder="Ej. 50mg, 1 tableta"></div>
+                <div><label class="field-label" for="mmHorarios">Horarios (separados por coma)</label><input class="field" id="mmHorarios" placeholder="Ej. 08:00, 20:00"></div>
+              </div>
+              <button class="btn btn-primary btn-block" type="button" id="btn-add-med">Guardar medicamento</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-calendario">
+          <h2 class="screen-title">Calendario</h2>
+          <div class="section-grid">
+            <div class="card">
+              <div class="cal-nav">
+                <button class="icon-btn" type="button" id="cal-prev" aria-label="Mes anterior"></button>
+                <div class="month-label" id="monthLabel"></div>
+                <button class="icon-btn" type="button" id="cal-next" aria-label="Mes siguiente"></button>
+              </div>
+              <div class="cal-grid" id="calGrid"></div>
+            </div>
+            <div class="card">
+              <div class="row-between">
+                <span class="row-title" id="dayEventsLabel">Eventos</span>
+                <button class="btn btn-sm btn-coral" type="button" id="btn-open-event">+ Agregar</button>
+              </div>
+              <div id="dayEventsList"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal-back" id="modalEvent">
+    <div class="modal-sheet">
+      <h3>Nuevo evento</h3>
+      <p class="modal-lead" id="modalEventDateLabel"></p>
+      <div class="field-stack">
+        <div><label class="field-label" for="meTitulo">Título</label><input class="field" id="meTitulo" placeholder="Ej. Control con cardiología"></div>
+        <div class="field-row">
+          <div><label class="field-label" for="meHora">Hora</label><input class="field" id="meHora" type="time" value="09:00"></div>
+          <div>
+            <label class="field-label" for="meTipo">Tipo</label>
+            <select class="field" id="meTipo">
+              <option value="cita">Cita médica</option>
+              <option value="medicamento">Medicamento</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" id="btn-cancel-event">Cancelar</button>
+        <button class="btn btn-coral" type="button" id="btn-save-event">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-back" id="pin-modal">
+    <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="pin-title">
+      <h3 id="pin-title">Activar Vita</h3>
+      <p class="modal-lead" id="pin-lead">Escribe la contraseña para ocupar toda la pestaña con Vita.</p>
+      <div class="auth-error" id="pinError"></div>
+      <div class="auth-field">
+        <label for="pinInput">Contraseña</label>
+        <input type="password" id="pinInput" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" type="button" id="btn-cancel-pin">Cancelar</button>
+        <button class="btn btn-primary" type="button" id="btn-confirm-pin">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="vita-lock">
+    <div class="vita-lock-top">
+      <div class="who">Vita<small>ocupa toda esta pestaña</small></div>
+      <button class="deactivate-btn" type="button" id="btn-deactivate">Desactivar Vita</button>
+    </div>
+    <div class="orb-wrap">
+      <div class="orb" id="orb"></div>
+      <div class="assistant-status" id="assistantStatus">Toca el micrófono o escríbeme algo</div>
+      <div class="transcript-box" id="transcriptBox"></div>
+    </div>
+    <div class="chip-row">
+      <button class="chip" type="button" data-ask="Ayúdame a ubicarme">Ayúdame a ubicarme</button>
+      <button class="chip" type="button" data-ask="¿Quién soy?">¿Quién soy?</button>
+      <button class="chip" type="button" data-ask="¿Dónde estoy?">¿Dónde estoy?</button>
+      <button class="chip" type="button" data-ask="¿Quién me habla?">¿Quién me habla?</button>
+    </div>
+    <div class="assistant-bottom">
+      <div class="text-input-row">
+        <input id="textQuery" placeholder="Habla con Vita...">
+        <button class="send-btn" type="button" id="btn-send" aria-label="Enviar"></button>
+      </div>
+      <button class="mic-btn" type="button" id="micBtn" aria-label="Hablar con Vita"></button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    if (location.protocol !== "file:" && (location.hostname === "127.0.0.1" || location.hostname === "[::1]")) {
+      const port = location.port ? ":" + location.port : "";
+      location.replace(location.protocol + "//localhost" + port + location.pathname + location.search + location.hash);
+    }
+  </script>
+  <script src="/js/vita-core.js"></script>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
