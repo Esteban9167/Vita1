@@ -17,8 +17,8 @@ import {
   collection,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-import { auth, db, googleProvider, appleProvider } from "./firebase.js?v=care10";
-import { askVita, resetVitaChat, geminiErrorMessage } from "./gemini.js?v=care10";
+import { auth, db, googleProvider, appleProvider } from "./firebase.js?v=care12";
+import { askVita, resetVitaChat, geminiErrorMessage } from "./gemini.js?v=care12";
 
 const vita = window.vita;
 const VITA_PIN = "1234";

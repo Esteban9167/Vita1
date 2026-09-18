@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { requireAuth } from "./auth.js";
@@ -98,6 +99,28 @@ app.post("/api/chat/turn", requireAuth, async (req, res) => {
 
 app.use(express.static(rootDir));
 
+app.use((req, res, next) => {
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    next();
+    return;
+  }
+  if (req.path.startsWith("/api/")) {
+    next();
+    return;
+  }
+  const rel = decodeURIComponent(req.path === "/" ? "index.html" : req.path.replace(/^\/+/, ""));
+  if (!rel || rel.includes("..")) {
+    next();
+    return;
+  }
+  const file = path.join(rootDir, rel);
+  if (file.startsWith(rootDir) && fs.existsSync(file) && fs.statSync(file).isFile()) {
+    res.sendFile(file);
+    return;
+  }
+  res.sendFile(path.join(rootDir, "index.html"));
+});
+
 app.use((req, res) => {
   if (req.path.startsWith("/api/")) {
     res.status(404).json({ error: "No encontrado." });
@@ -106,6 +129,10 @@ app.use((req, res) => {
   res.sendFile(path.join(rootDir, "index.html"));
 });
 
-app.listen(port, () => {
-  console.log(`Vita lista en http://localhost:${port}`);
-});
+export default app;
+
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`Vita lista en http://localhost:${port}`);
+  });
+}

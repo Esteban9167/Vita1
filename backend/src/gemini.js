@@ -1,10 +1,10 @@
 const GEMINI_MODELS = [
-  "gemini-2.5-flash",
-  "gemini-2.0-flash",
-  "gemini-flash-latest",
-  "gemini-2.5-flash-lite",
   "gemini-3.6-flash",
-  "gemini-3.7-flash"
+  "gemini-3.7-flash",
+  "gemini-3.8-flash",
+  "gemini-flash-latest",
+  "gemini-3.5-flash",
+  "gemini-3.5-flash-lite"
 ];
 
 const TOOLS = [{
@@ -25,34 +25,6 @@ const TOOLS = [{
     {
       name: "eliminar_contacto",
       description: "Elimina un contacto de emergencia por id o por nombre.",
-      parameters: {
-        type: "object",
-        properties: {
-          id: { type: "string" },
-          nombre: { type: "string" }
-        }
-      }
-    },
-    {
-      name: "agregar_medicamento",
-      description: "Registra un medicamento con dosis y horarios en formato HH:MM.",
-      parameters: {
-        type: "object",
-        properties: {
-          nombre: { type: "string" },
-          dosis: { type: "string", description: "Por ejemplo 500 mg" },
-          horarios: {
-            type: "array",
-            items: { type: "string" },
-            description: "Lista de horas, por ejemplo 08:00 y 20:00"
-          }
-        },
-        required: ["nombre", "horarios"]
-      }
-    },
-    {
-      name: "eliminar_medicamento",
-      description: "Elimina un medicamento por id o por nombre.",
       parameters: {
         type: "object",
         properties: {
@@ -139,7 +111,10 @@ Personalidad:
 - ${rol === "enfermero" ? "Si habla un enfermero, ayúdalo a orientar al paciente con el mismo tono suave." : "Si habla el paciente, cuídalo con ternura práctica, sin infantilizarlo."}
 - Nunca diagnostiques, recetes ni inventes resultados médicos.
 - PROHIBIDO modificar la historia clínica: alergias, tipo de sangre, condiciones crónicas, cirugías u notas. El paciente no puede cambiarlas y tú tampoco.
-- Si te piden registrar, cambiar o borrar medicamentos, contactos o citas, USA las herramientas. Luego confirma con naturalidad.
+- PROHIBIDO agregar, quitar o cambiar medicamentos desde el asistente. El paciente puede alterarse. No uses herramientas para eso. No finjas que ya lo guardaste.
+- Si pide un medicamento nuevo, cambiar la dosis o borrarlo: tranquilízala, dile que lo vas a consultar con su doctor y que por ahora no cambias nada. Frases cortas, tono de compañía.
+- Si te piden registrar o borrar contactos o citas, USA las herramientas. Luego confirma con naturalidad.
+- Habla como una persona al lado, no como un sistema: giros naturales, sin tono de manual. No enumeres 1) 2) 3) en voz alta. No digas procesando, entendido, correcto ni similar.
 - Respuestas pensadas para voz: 1 a 4 frases. Sin markdown, sin asteriscos, sin emojis.
 
 Datos actuales de Vita:
@@ -178,13 +153,19 @@ function extractCalls(payload) {
 }
 
 async function postGemini(model, body) {
+  const apiKey = String(process.env.GEMINI_API_KEY || "").trim();
+  if (!apiKey) {
+    const err = new Error("Falta GEMINI_API_KEY en el servidor.");
+    err.status = 403;
+    throw err;
+  }
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-goog-api-key": process.env.GEMINI_API_KEY
+        "x-goog-api-key": apiKey
       },
       body: JSON.stringify(body)
     }
@@ -206,7 +187,7 @@ async function generate(model, contents, snapshot, profile) {
     toolConfig: { functionCallingConfig: { mode: "AUTO" } },
     generationConfig: {
       temperature: 0.85,
-      maxOutputTokens: 512
+      maxOutputTokens: 2048
     }
   });
 }
@@ -233,7 +214,7 @@ async function generateWithFallback(contents, snapshot, profile) {
 
 export function publicGeminiError(error) {
   if (error?.status === 401 || error?.status === 403) {
-    return "No pude conectar con Gemini. Revisa la clave en el servidor.";
+    return "No pude conectar con Gemini. Hay que crear una clave nueva en Google AI Studio.";
   }
   if (error?.status === 429) {
     return "Estoy un poco ocupada ahora. Inténtalo en un momento.";

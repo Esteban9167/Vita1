@@ -17,8 +17,8 @@ const firebaseConfig = {
   projectId: "vita-9d234",
   storageBucket: "vita-9d234.firebasestorage.app",
   messagingSenderId: "1047589346293",
-  appId: "1:1047589346293:web:2987cb1a1024e500535ebc",
-  measurementId: "G-WQ4WK40KYK"
+  appId: "1:1047589346293:web:58a17373f4a247a8535ebc",
+  measurementId: "G-YT9KJRGL2M"
 };
 
 export const app = initializeApp(firebaseConfig);
