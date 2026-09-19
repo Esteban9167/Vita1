@@ -1181,6 +1181,56 @@ class VitaCore {
   }
 
 
+  async pedirPermisoMicrofono() {
+    if (!window.isSecureContext) {
+      const error = new Error("insecure");
+      error.name = "SecurityError";
+      throw error;
+    }
+    if (navigator.mediaDevices?.getUserMedia) {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true }
+      });
+      stream.getTracks().forEach((track) => track.stop());
+    } else if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      const error = new Error("unsupported");
+      error.name = "NotSupportedError";
+      throw error;
+    }
+    this.configurarReconocimientoVoz();
+    if (!this.recognition) return;
+    await new Promise((resolve, reject) => {
+      const rec = this.recognition;
+      const finish = (error) => {
+        rec.onstart = null;
+        rec.onend = null;
+        rec.onerror = null;
+        rec.onresult = null;
+        if (error) reject(error);
+        else resolve();
+      };
+      rec.onstart = () => {
+        try { rec.stop(); } catch {}
+      };
+      rec.onend = () => finish();
+      rec.onerror = (event) => {
+        if (event?.error === "not-allowed" || event?.error === "service-not-allowed") {
+          const error = new Error(event.error);
+          error.name = "NotAllowedError";
+          finish(error);
+          return;
+        }
+        finish();
+      };
+      try {
+        rec.start();
+      } catch (error) {
+        finish();
+      }
+    });
+  }
+
+
   escuchar({
     onStart,
     onResult,

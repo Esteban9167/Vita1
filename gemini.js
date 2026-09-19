@@ -1,4 +1,4 @@
-import { auth } from "./firebase.js?v=care12";
+import { auth } from "./firebase.js?v=care14";
 
 let chatHistory = [];
 

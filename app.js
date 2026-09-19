@@ -17,8 +17,8 @@ import {
   collection,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-import { auth, db, googleProvider, appleProvider } from "./firebase.js?v=care12";
-import { askVita, resetVitaChat, geminiErrorMessage } from "./gemini.js?v=care12";
+import { auth, db, googleProvider, appleProvider } from "./firebase.js?v=care14";
+import { askVita, resetVitaChat, geminiErrorMessage } from "./gemini.js?v=care14";
 
 const vita = window.vita;
 const VITA_PIN = "1234";
@@ -63,6 +63,7 @@ let toastTimer;
 let remoteSaveTimer;
 let activePatientUid = null;
 let patientRoster = [];
+let pendingAppEntry = null;
 const CODE_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
 
 function carePayload(state) {
@@ -383,7 +384,7 @@ function firebaseAuthMessage(error) {
     "auth/popup-closed-by-user": "Se cerró la ventana de Google. Inténtalo de nuevo y deja la ventana abierta hasta terminar.",
     "auth/cancelled-popup-request": "Se canceló el inicio de sesión. Pulsa Google otra vez.",
     "auth/operation-not-allowed": "Google no está activo en Firebase Authentication.",
-    "auth/unauthorized-domain": `Firebase no autorizó ${location.hostname}. En Authentication > Settings > Authorized domains debe estar exactamente "localhost", sin http ni puerto.`,
+    "auth/unauthorized-domain": `Firebase no autorizó ${location.hostname}. En Authentication > Settings > Authorized domains agrega exactamente "${location.hostname}", sin http ni puerto.`,
     "auth/account-exists-with-different-credential": "Ese correo ya está registrado con otro método. Entra con correo y contraseña.",
     "auth/popup-blocked": "El navegador bloqueó la ventana de Google. Permite ventanas emergentes para este sitio.",
     "auth/network-request-failed": "Revisa tu conexión e inténtalo de nuevo.",
@@ -399,6 +400,7 @@ function showAuthPanel(id) {
   $("registerForm").style.display = id === "registerForm" ? "block" : "none";
   $("profileForm").style.display = id === "profileForm" ? "block" : "none";
   $("healthForm").style.display = id === "healthForm" ? "block" : "none";
+  $("micForm").style.display = id === "micForm" ? "block" : "none";
   hideAuthErrors();
 }
 
@@ -480,6 +482,7 @@ function showAuthScreen() {
   currentProfile = null;
   activePatientUid = null;
   patientRoster = [];
+  pendingAppEntry = null;
   if (vitaLocked) deactivateVita();
   resetVitaChat();
   if ($("transcriptBox")) $("transcriptBox").innerHTML = "";
@@ -509,7 +512,7 @@ function showRegister() {
 }
 
 function hideAuthErrors() {
-  ["loginError", "registerError", "profileError", "healthError"].forEach((id) => {
+  ["loginError", "registerError", "profileError", "healthError", "micError"].forEach((id) => {
     const el = $(id);
     if (el) el.classList.remove("show");
   });
@@ -649,7 +652,7 @@ function saveHealthAndEnter() {
   vita.guardarOrientacion(data);
   vita.setHistoriaLocked(true);
   persistCareData(vita.getState());
-  enterApp(user, currentProfile);
+  finishAuthEntry(user, currentProfile);
 }
 
 function showProfileGate(user, profile = null) {
@@ -703,7 +706,7 @@ async function handleAuthenticatedUser(user) {
         return;
       }
     }
-    enterApp(user, profile);
+    await finishAuthEntry(user, profile);
   } catch (error) {
     const cached = readLocalProfile(user.uid);
     if (profileComplete(cached)) {
@@ -714,12 +717,76 @@ async function handleAuthenticatedUser(user) {
           return;
         }
       }
-      enterApp(user, cached);
+      await finishAuthEntry(user, cached);
       return;
     }
     showProfileGate(user, cached);
     showAuthError("profileError", "Entra con tus datos básicos. Si Firestore no está listo, igual puedes usar Vita.");
   }
+}
+
+async function microphoneState() {
+  if (!navigator.mediaDevices?.getUserMedia) return "unsupported";
+  try {
+    const status = await navigator.permissions.query({ name: "microphone" });
+    return status.state;
+  } catch {
+    return "unknown";
+  }
+}
+
+async function finishAuthEntry(user, profile) {
+  if ($("app-container").classList.contains("active") && currentUser === user.uid) return;
+  if (pendingAppEntry?.user?.uid === user.uid && $("micForm")?.style.display === "block") return;
+  pendingAppEntry = { user, profile };
+  const state = await microphoneState();
+  if (state === "unsupported") {
+    pendingAppEntry = null;
+    enterApp(user, profile);
+    return;
+  }
+  showMicGate(state);
+}
+
+function showMicGate(state) {
+  $("auth-screen").style.display = "grid";
+  $("app-container").classList.remove("active");
+  showAuthPanel("micForm");
+  const denied = state === "denied";
+  $("micLead").textContent = denied
+    ? "El micrófono quedó bloqueado. Pulsa Permitir otra vez o, en la barra del navegador, toca el candado y habilita el micrófono."
+    : "Pulsa Permitir micrófono. El navegador va a mostrar el aviso para aceptar.";
+  $("btn-allow-mic").style.display = "block";
+  $("btn-allow-mic").textContent = denied ? "Intentar de nuevo" : "Permitir micrófono";
+  $("btn-skip-mic").textContent = "Ahora no, voy a escribir";
+}
+
+async function allowMicrophoneAndEnter() {
+  const entry = pendingAppEntry || (auth.currentUser
+    ? { user: auth.currentUser, profile: currentProfile }
+    : null);
+  if (!entry?.user) return;
+  hideAuthErrors();
+  $("btn-allow-mic").disabled = true;
+  try {
+    await vita.pedirPermisoMicrofono();
+    pendingAppEntry = null;
+    enterApp(entry.user, entry.profile);
+  } catch (error) {
+    const blocked = error?.name === "NotAllowedError" || error?.name === "PermissionDeniedError";
+    showAuthError("micError", blocked
+      ? "El navegador bloqueó el micrófono. Toca el candado de la barra de direcciones, permite el micrófono y pulsa otra vez."
+      : "No pude activar el micrófono. Pulsa Permitir otra vez cuando salga el aviso.");
+  } finally {
+    $("btn-allow-mic").disabled = false;
+  }
+}
+
+function skipMicrophoneAndEnter() {
+  if (!pendingAppEntry) return;
+  const entry = pendingAppEntry;
+  pendingAppEntry = null;
+  enterApp(entry.user, entry.profile);
 }
 
 function enterApp(user, profile) {
@@ -746,6 +813,7 @@ function enterApp(user, profile) {
   $("auth-screen").style.display = "none";
   $("profileForm").style.display = "none";
   $("healthForm").style.display = "none";
+  $("micForm").style.display = "none";
   $("app-container").classList.add("active");
   $("sidebarEmail").textContent = roleLabel(profile.rol);
   renderNav();
@@ -1310,6 +1378,8 @@ function bindEvents() {
   $("btn-show-login").addEventListener("click", showLogin);
   $("btn-save-profile").addEventListener("click", saveProfileAndEnter);
   $("btn-save-health").addEventListener("click", saveHealthAndEnter);
+  $("btn-allow-mic").addEventListener("click", allowMicrophoneAndEnter);
+  $("btn-skip-mic").addEventListener("click", skipMicrophoneAndEnter);
   $("btn-link-patient")?.addEventListener("click", linkPatientByCode);
   $("btn-change-patient")?.addEventListener("click", () => {
     activePatientUid = null;

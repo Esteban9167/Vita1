@@ -18,6 +18,7 @@ app.use(express.json({ limit: "1mb" }));
 app.use((_req, res, next) => {
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+  res.setHeader("Permissions-Policy", "microphone=(self)");
   next();
 });
 

@@ -91,7 +91,7 @@ function firebaseAuthMessage(error) {
     "auth/popup-closed-by-user": "Se cerró la ventana de Google. Inténtalo de nuevo y deja la ventana abierta hasta terminar.",
     "auth/cancelled-popup-request": "Se canceló el inicio de sesión. Pulsa Google otra vez.",
     "auth/operation-not-allowed": "Google no está activo en Firebase Authentication.",
-    "auth/unauthorized-domain": `Firebase no autorizó ${location.hostname}. En Authentication > Settings > Authorized domains debe estar exactamente "localhost", sin http ni puerto.`,
+    "auth/unauthorized-domain": `Firebase no autorizó ${location.hostname}. En Authentication > Settings > Authorized domains agrega exactamente "${location.hostname}", sin http ni puerto.`,
     "auth/account-exists-with-different-credential": "Ese correo ya está registrado con otro método. Entra con correo y contraseña.",
     "auth/popup-blocked": "El navegador bloqueó la ventana de Google. Permite ventanas emergentes para este sitio.",
     "auth/network-request-failed": "Revisa tu conexión e inténtalo de nuevo.",

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=care12">
+  <link rel="stylesheet" href="styles.css?v=care14">
 </head>
 <body>
   <div id="auth-screen">
@@ -168,6 +168,18 @@
             <textarea id="hfPresentacion" rows="3" placeholder="Ej. Soy Vita, tu compañera de cuidado. Estoy aquí contigo."></textarea>
           </div>
           <button class="auth-submit" type="button" id="btn-save-health">Guardar y entrar</button>
+        </div>
+
+        <div id="micForm">
+          <h1>Permite el micrófono</h1>
+          <div class="lead" id="micLead">Vita te escucha para acompañarte con la voz. Activa el micrófono ahora, antes de abrir el asistente.</div>
+          <div class="auth-error" id="micError"></div>
+          <div class="mic-permit">
+            <div class="mic-permit-mark" aria-hidden="true"></div>
+            <p>El navegador va a preguntarte si Vita puede usar el micrófono. Acepta para hablarle; si no, puedes escribirle.</p>
+          </div>
+          <button class="auth-submit" type="button" id="btn-allow-mic">Permitir micrófono</button>
+          <button class="auth-switch-btn" type="button" id="btn-skip-mic">Ahora no, voy a escribir</button>
         </div>
       </div>
     </div>
@@ -438,7 +450,7 @@
       }
     }
   </script>
-  <script src="vita-core.js?v=care12"></script>
-  <script type="module" src="app.js?v=care12"></script>
+  <script src="vita-core.js?v=care14"></script>
+  <script type="module" src="app.js?v=care14"></script>
 </body>
 </html>
